@@ -6,6 +6,7 @@ export default function App() {
   const [location, setLocation] = useState();
   const [loading, setLoading] = useState();
 
+  // Permission
   useEffect(() => {
     const getPermissions = async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -17,31 +18,36 @@ export default function App() {
     getPermissions();
   }, []);
 
+  // Zjišťování souřednic
   const geocode = async () => {
     setLoading(true);
     let currentLocation = await Location.getCurrentPositionAsync({});
     setLocation(currentLocation);
-    console.log(currentLocation);
+    console.warn(`Latitude: ${currentLocation.coords.latitude}, Longitude: ${currentLocation.coords.longitude}` );
     setLoading(false);
   };
 
+  // Zjištění adresy
   const reverseGeocode = async () => {
     const reverseGeocodedAddress = await Location.reverseGeocodeAsync({
       longitude: location.coords.longitude,
       latitude: location.coords.latitude,
     });
 
-    console.log("Adresa:");
-    console.log(reverseGeocodedAddress);
+    console.warn(reverseGeocodedAddress);
   };
 
-  const caniwork = () => {
-    const companyLatitude = 50.7264924111979;
-    const companyLongitude = 15.460478079662755;
-    const tolerance = 100;
+  // Často používané souřadnice
+  // DDM 50.7264924111979, 15.460478079662755
+  // Zeyerovka 50.775603022284635, 15.052113442651669
+  // SPŠSE a VOŠ 50.773186370485085, 15.064687119687196
 
-    // DDM 50.7264924111979, 15.460478079662755
-    // Zeyerovka 50.775603022284635, 15.052113442651669
+  const caniwork = () => {
+
+    // Zadání souřadnic firmy a velikosti tolerance
+    const companyLatitude = 50.773186370485085;
+    const companyLongitude = 15.064687119687196;
+    const tolerance = 100;
 
     const distance = getDistance(
       location.coords.latitude,
@@ -50,13 +56,17 @@ export default function App() {
       companyLongitude
     );
 
+    // Kontrola jestli je osoba v toleranci metrů
     if (distance <= tolerance) {
-      console.log("Ano, můžeš");
+      console.warn("Ano, můžeš");
     } else {
-      console.log("Ne, nemůžeš");
+      console.warn("Ne, nemůžeš");
     }
   };
 
+
+
+  // Výpočet metrů
   const getDistance = (lat1, lon1, lat2, lon2) => {
     const radlat1 = (Math.PI * lat1) / 180;
     const radlat2 = (Math.PI * lat2) / 180;
